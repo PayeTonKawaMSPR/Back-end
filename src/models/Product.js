@@ -5,7 +5,8 @@ const productSchema = new mongoose.Schema({
   prix: { type: Number, required: true, min: 0},
   description: {type: String, required: true},
   //enStock: { type: Boolean, default: true },
-  Stock: { type: Number, required: true, default: 0, min: 0}
+  Stock: { type: Number, required: true, default: 0, min: 0},
+  imageUrl: { type: String, default: '' }
 });
 
 productSchema.index({ nom: 1 }, { unique: true });

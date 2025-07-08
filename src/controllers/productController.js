@@ -77,3 +77,16 @@ exports.deleteProduit = async (req, res) => {
   }
 };
 
+exports.uploadImage = async (req, res, next) => {
+  try {
+    const url = `/uploads/${req.file.filename}`;
+    const produit = await Product.findByIdAndUpdate(
+      req.params.id,
+      { imageUrl: url },
+      { new: true }
+    );
+    res.json(produit);
+  } catch (err) {
+    next(err);
+  }
+};
