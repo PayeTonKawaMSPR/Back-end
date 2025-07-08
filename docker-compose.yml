@@ -4,8 +4,22 @@ services:
   rabbitmq:
     image: rabbitmq:management
     ports:
-      - "5672:5672"   # Port pour les APIs
-      - "15672:15672" # UI Admin (http://localhost:15672)
+      - "5672:5672"  # Port AMQP
+      - "15672:15672"  # UI Admin
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=password
+
+  api-produit:
+    build:
+      context: ./api-produit  # Path relatif vers le dossier api-produit
+      # dockerfile: Dockerfile  # Inutile à préciser si le fichier s'appelle "Dockerfile"
+    ports:
+      - "5000:5000"  # Expose le port de l'API
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_URL=amqp://admin:password@rabbitmq
+    # Si tu utilises des variables d'environnement (ex: .env), ajoute :
+    env_file:
+      - ./api-produit/.env
