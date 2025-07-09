@@ -6,7 +6,8 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "jest --coverage",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build": "echo \"No build step defined\""
   },
   "dependencies": {
     "amqplib": "^0.10.8",
