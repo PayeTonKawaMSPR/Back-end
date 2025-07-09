@@ -18,5 +18,5 @@ services:
       - RABBITMQ_URL=amqp://admin:password@rabbitmq
     depends_on:
       - rabbitmq
-    env_file:
-      - ./api-produit/.env
+    # env_file:
+    #   - ./api-produit/.env
