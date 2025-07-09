@@ -1,3 +1,10 @@
+const testRabbitMQ = require('./rabbitmq');
+
+// Test RabbitMQ au démarrage
+testRabbitMQ().then(() => {
+  console.log('API Produit démarrée');
+});
+
 const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
