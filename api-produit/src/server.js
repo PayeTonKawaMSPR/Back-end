@@ -2,8 +2,13 @@ const express = require('express');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
+const path = require('path');
+
 const { testRabbitMQ } = require('./rabbitmq');
 const { startConsumer } = require('./listener'); // Import seulement ici, appel plus bas
+
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi     = require('swagger-ui-express');
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -14,6 +19,18 @@ const app = express();
 app.use(express.json());
 const cors = require('cors');
 app.use(cors());
+
+// Configuration de Swagger
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: { title: 'API Produits', version: '1.0.0', description: 'Documentation des endpoints de l’API Produits' },
+    servers: [{ url: 'http://localhost:5000/api/produits' }]
+  },
+  apis: ['./src/routes/*.js', './src/models/*.js']
+};
+const specs = swaggerJsdoc(options);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Sécuriser les entêtes HTTP (Helmet)
 const helmet = require('helmet');
@@ -31,6 +48,12 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/produits', productRoutes);
+
+// Ajout d'images
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '..', 'public', 'uploads'))
+);
 
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'OK' }));

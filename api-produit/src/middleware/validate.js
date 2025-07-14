@@ -18,5 +18,20 @@ exports.validateBody = (schema) => (req, res, next) => {
   next();
 };
 
+exports.getProductSchema = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).default(10),
+  minPrice: Joi.number().min(0),
+  maxPrice: Joi.number().min(0),
+  search: Joi.string().allow('').max(100)
+});
+
+exports.patchProductSchema = Joi.object({
+  nom: Joi.string().min(2).max(100),
+  prix: Joi.number().min(0),
+  description: Joi.string().allow('').max(500),
+  Stock: Joi.number().integer().min(0)
+}).min(1);
+
 // Exporter le schéma spécifique
 exports.productSchema = productSchema;

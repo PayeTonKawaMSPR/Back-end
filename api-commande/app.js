@@ -1,8 +1,6 @@
-// app.js
-const express = require('express');
+/*const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
-const { connectRabbitMQ } = require('./config/rabbit'); // <-- ajout
 
 const app = express();
 app.use(express.json());
@@ -12,11 +10,34 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connecté'))
   .catch(err => console.error(err));
 
-// Connexion RabbitMQ
-connectRabbitMQ(); // <-- ajout
-
 // Routes
 const orderRoutes = require('./routes/orderRoutes');
 app.use('/api/orders', orderRoutes);
+
+module.exports = app;*/
+
+
+const express = require('express');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+const orderRoutes = require('./routes/orderRoutes');
+const { connect: connectRabbit } = require('./rabbitmq');
+const errorHandler = require('./middleware/errorHandler');
+
+dotenv.config();
+const app = express();
+app.use(express.json());
+
+// routes
+app.use('/api/orders', orderRoutes);
+
+// global error handler
+app.use(errorHandler);
+
+// init
+(async () => {
+  await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+  await connectRabbit();
+})();
 
 module.exports = app;
