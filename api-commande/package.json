@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "jest",
-    "dev": "nodeomon server.js"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "amqplib": "^0.10.8",

@@ -35,7 +35,7 @@ const router = express.Router();
 const Order = require('../models/order');
 const { validateBody, validateQuery, validateIdParam } = require('../middleware/validate');
 const auth = require('../middleware/auth');
-const { publish } = require('../rabbitmq');
+const { publish } = require('../config/rabbit');
 const Joi = require('joi');
 
 const orderSchema = Joi.object({
@@ -47,7 +47,7 @@ const orderSchema = Joi.object({
 const querySchema = Joi.object({ page: Joi.number().integer().min(1).default(1), limit: Joi.number().integer().min(1).default(10) });
 
 // create
-router.post('/', auth, validateBody(orderSchema), async (req, res, next) => {
+router.post('/', validateBody(orderSchema), async (req, res, next) => {
   try {
     const doc = await Order.create(req.body);
     await publish('mspr.exchange','order.created', doc);
@@ -55,7 +55,7 @@ router.post('/', auth, validateBody(orderSchema), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 // list
-router.get('/', auth, validateQuery(querySchema), async (req, res, next) => {
+router.get('/', validateQuery(querySchema), async (req, res, next) => {
   try {
     const { page, limit } = req.query;
     const skip = (page-1)*limit;
@@ -64,7 +64,7 @@ router.get('/', auth, validateQuery(querySchema), async (req, res, next) => {
   } catch(err){ next(err); }
 });
 // get
-router.get('/:id', auth, validateIdParam, async (req,res,next)=>{
+router.get('/:id', validateIdParam, async (req,res,next)=>{
   try{
     const doc = await Order.findById(req.params.id);
     if(!doc) return res.status(404).json({message:'Order not found'});
@@ -72,7 +72,7 @@ router.get('/:id', auth, validateIdParam, async (req,res,next)=>{
   }catch(e){next(e);}
 });
 // update
-router.put('/:id', auth, validateIdParam, validateBody(orderSchema), async(req,res,next)=>{
+router.put('/:id', validateIdParam, validateBody(orderSchema), async(req,res,next)=>{
   try{
     const updated = await Order.findByIdAndUpdate(req.params.id, req.body, { new:true, runValidators:true });
     if(!updated) return res.status(404).json({message:'Order not found'});
@@ -81,7 +81,7 @@ router.put('/:id', auth, validateIdParam, validateBody(orderSchema), async(req,r
   }catch(e){next(e);}
 });
 // delete
-router.delete('/:id', auth, validateIdParam, async(req,res,next)=>{
+router.delete('/:id', validateIdParam, async(req,res,next)=>{
   try{
     const del = await Order.findByIdAndDelete(req.params.id);
     if(!del) return res.status(404).json({message:'Order not found'});

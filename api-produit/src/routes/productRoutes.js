@@ -3,7 +3,7 @@ const router = express.Router();
 const productController = require('../controllers/productController');
 const validateIdParam = require('../middleware/validateIdParam');
 const { validateBody, productSchema, patchProductSchema, getProductSchema } = require('../middleware/validate'); 
-const { publish } = require('../rabbitmq');
+// const { publish } = require('../rabbitmq');
 const auth  = require('../middleware/auth');
 
 const upload = require('../middleware/upload');

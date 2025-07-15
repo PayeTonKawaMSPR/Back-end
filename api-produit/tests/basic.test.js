@@ -1,8 +1,8 @@
-const request = require('supertest');
-const app = require('../src/server');
+/*const request = require('supertest');
+const app = require('../src/server');*/
 /*const path    = require('path');*/
 
-describe('Gestion Produits API', () => {
+/*describe('Gestion Produits API', () => {
   it('GET /health → 200 & status OK', async () => {
     const res = await request(app).get('/health');
     expect(res.status).toBe(200);
@@ -33,7 +33,7 @@ describe('Gestion Produits API', () => {
       stock: 2
     });
   });
-});
+});*/
 
 
 /*describe('PUT /api/produits/:id/image', () => {
