@@ -42,7 +42,8 @@ const orderSchema = Joi.object({
   customerId: Joi.string().required(),
   products: Joi.array().items(
     Joi.object({ productId: Joi.string().required(), quantity: Joi.number().integer().min(1).required() })
-  ).min(1).required()
+  ).min(1).required(),
+  status: Joi.string().valid('pending','shipped','delivered','cancelled').default('pending')
 });
 const querySchema = Joi.object({ page: Joi.number().integer().min(1).default(1), limit: Joi.number().integer().min(1).default(10) });
 
