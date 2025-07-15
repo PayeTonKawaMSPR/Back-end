@@ -4,17 +4,17 @@ FROM node:18-alpine
 # Définit le dossier de travail
 WORKDIR /app
 
-# Copie les fichiers de dépendances (meilleure utilisation du cache Docker)
+# Copie les fichiers de dépendances
 COPY package*.json ./
 
-# Installe les dépendances de ton projet
+# Installe les dépendances
 RUN npm install
 
-# Installe nodemon globalement (nécessaire pour npm run dev)
+# Installe nodemon globalement
 RUN npm install -g nodemon
 
-# Copie tout le reste du projet dans l'image
+# Copie tout le reste
 COPY . .
 
-# Définit la commande par défaut
-CMD ["npm", "run", "dev"]
+# Commande de démarrage : seed automatique puis démarrage du serveur
+CMD npm run seed && npm run dev
