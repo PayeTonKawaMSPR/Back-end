@@ -1,4 +1,4 @@
-// config/rabbit.js
+
 const amqp = require('amqplib');
 
 let channel;
@@ -16,7 +16,15 @@ const connectRabbitMQ = async () => {
   }
 };
 
+async function publish(exchange, routingKey, message) {
+  const channel = getChannel();
+  if (!channel) throw new Error('Channel non initialisé');
+  await channel.assertExchange(exchange, 'topic', { durable: true });
+  channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(message)));
+}
+
 module.exports = {
   connectRabbitMQ,
+  publish,
   getChannel: () => channel
 };

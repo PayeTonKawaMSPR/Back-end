@@ -125,7 +125,7 @@ exports.uploadImage = async (req, res, next) => {
     );
     if (!produit) return res.status(404).json({ message: 'Produit non trouvé' });
     // Émettre l’événement produit.imageUploaded
-    await publish('mspr.exchange', 'produit.imageUploaded', { id: produit._id, imagePath: urlPath });
+   // await publish('mspr.exchange', 'produit.imageUploaded', { id: produit._id, imagePath: urlPath });
     res.json(produit);
   } catch (err) {
     next(err);
@@ -160,10 +160,10 @@ exports.replaceImage = async (req, res, next) => {
     await produit.save();
 
     // Émettre un événement RabbitMQ
-    await publish('mspr.exchange', 'produit.imageReplaced', {
+    /*await publish('mspr.exchange', 'produit.imageReplaced', {
       id: produit._id,
       imagePath: newImageUrl
-    });
+    });*/
 
     res.json(produit);
   } catch (err) {
@@ -181,7 +181,7 @@ exports.deleteImage = async (req, res, next) => {
     }
     produit.imagePath = null;
     await produit.save();
-    await publish('mspr.exchange', 'produit.imageDeleted', { id: produit._id });
+    // await publish('mspr.exchange', 'produit.imageDeleted', { id: produit._id });
     res.status(204).end();
   } catch (err) {
     next(err);

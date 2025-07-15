@@ -21,7 +21,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const orderRoutes = require('./routes/orderRoutes');
-const { connect: connectRabbit } = require('./rabbitmq');
+const {connectRabbitMQ } = require('./config/rabbit');
 const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -37,7 +37,7 @@ app.use(errorHandler);
 // init
 (async () => {
   await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-  await connectRabbit();
+  await connectRabbitMQ();
 })();
 
 module.exports = app;

@@ -4,6 +4,7 @@ const connectDB = require('./config/db');
 const productRoutes = require('./routes/productRoutes');
 const path = require('path');
 
+
 const { testRabbitMQ } = require('./rabbitmq');
 const { startConsumer } = require('./listener'); // Import seulement ici, appel plus bas
 
@@ -16,6 +17,7 @@ dotenv.config();
 const app = express();
 
 // Middlewares
+app.use(require('./middleware/errorHandler'));
 app.use(express.json());
 const cors = require('cors');
 app.use(cors());
@@ -63,12 +65,15 @@ const errorHandler = require('./middleware/errorHandler');
 app.use(errorHandler);
 
 // Connexion à MongoDB
-connectDB();
+
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
 // Démarrer le serveur APRÈS que RabbitMQ soit prêt
 const PORT = process.env.PORT || 5000;
 
-testRabbitMQ()
+/*testRabbitMQ()
   .then(() => {
     console.log('✅ Connecté à RabbitMQ');
 
@@ -83,6 +88,26 @@ testRabbitMQ()
   .catch(err => {
     console.error('❌ Erreur de connexion RabbitMQ:', err.message);
     process.exit(1);
-  });
+  });*/
+
+  if (process.env.NODE_ENV !== 'test') {
+   testRabbitMQ()
+     .then(() => {
+       console.log('✅ Connecté à RabbitMQ');
+       // Important : on démarre le listener uniquement après la connexion réussie
+       startConsumer();
+       app.listen(PORT, () => {
+         console.log(`Serveur sur port ${PORT}`);
+         console.log('API Produit démarrée');
+       });
+     })
+     .catch(err => {
+       console.error('❌ Erreur de connexion RabbitMQ:', err.message);
+       process.exit(1);
+     });
+ } else {
+   // En mode test, on démarre immédiatement (supertest se branchera dessus)
+   app.listen(PORT);
+ }
 
 module.exports = app;
