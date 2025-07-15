@@ -41,9 +41,9 @@ const validateLogin = [
 
 // Validation pour création ou mise à jour de client
 const validateClient = [
-  body('name').notEmpty().withMessage('Le nom est requis'),
-  body('email').isEmail().withMessage('Email invalide'),
-  body('password').isLength({ min: 6 }).withMessage('Mot de passe min 6 caractères'),
+  body('name').optional().notEmpty().withMessage('Le nom est requis'),
+  body('email').optional().isEmail().withMessage('Email invalide'),
+  body('password').optional().isLength({ min: 6 }).withMessage('Mot de passe min 6 caractères'),
   body('phone').optional().isMobilePhone().withMessage('Numéro invalide'),
   body('address').optional().isString().withMessage('Adresse invalide'),
   validate
