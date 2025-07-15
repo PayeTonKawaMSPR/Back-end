@@ -1,0 +1,101 @@
+name: CI - Microservices
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test-api-produit:
+    name: Test API Produit
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+        env:
+          RABBITMQ_DEFAULT_USER: admin
+          RABBITMQ_DEFAULT_PASS: admin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        working-directory: ./api-produit
+        run: npm install
+
+      - name: Wait for MongoDB
+        run: |
+          until nc -z localhost 27017; do echo "Mongo pas prêt..."; sleep 1; done
+
+      - name: Wait for RabbitMQ
+        run: |
+          until nc -z localhost 5672; do echo "RabbitMQ pas prêt..."; sleep 1; done
+
+      - name: Run tests
+        working-directory: ./api-produit
+        run: npm test
+
+  test-api-client:
+    name: Test API Client
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Echo
+        run: echo "Tests API client non définis, à implémenter"
+
+  test-api-commande:
+    name: Test API Commande
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+        env:
+          RABBITMQ_DEFAULT_USER: admin
+          RABBITMQ_DEFAULT_PASS: admin
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        working-directory: ./api-commande
+        run: npm install
+
+      - name: Wait for MongoDB
+        run: |
+          until nc -z localhost 27017; do echo "Mongo pas prêt..."; sleep 1; done
+
+      - name: Wait for RabbitMQ
+        run: |
+          until nc -z localhost 5672; do echo "RabbitMQ pas prêt..."; sleep 1; done
+
+      - name: Run tests
+        working-directory: ./api-commande
+        run: npm test
