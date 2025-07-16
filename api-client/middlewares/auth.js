@@ -5,7 +5,7 @@ const Client = require('../models/client');
 exports.protect = async (req, res, next) => {
   let token;
 
-  // Récupérer le token depuis les headers
+  // Récupérer le token depuis l'en-tête Authorization
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
@@ -16,11 +16,24 @@ exports.protect = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const client = await Client.findById(decoded.id).select('-password');
+    if (!client) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
 
-    // Attacher le client à la requête (utile dans les routes privées)
-    req.client = await Client.findById(decoded.id).select('-password');
+    req.client = client;
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token invalide' });
+    return res.status(401).json({ message: 'Token invalide' });
   }
+};
+
+// Middleware pour restreindre l’accès à certains rôles
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.client.role)) {
+      return res.status(403).json({ message: 'Accès interdit à ce rôle' });
+    }
+    next();
+  };
 };

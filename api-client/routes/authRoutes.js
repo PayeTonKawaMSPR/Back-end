@@ -5,10 +5,10 @@ const router = express.Router();
 const { signup, login } = require('../controllers/authController');
 const { validateSignup, validateLogin } = require('../validations/clientValidation');
 
-// Route inscription
+// Route d’inscription
 router.post('/signup', validateSignup, signup);
 
-// Route connexion
+// Route de connexion
 router.post('/login', validateLogin, login);
 
 module.exports = router;
