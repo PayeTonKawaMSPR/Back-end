@@ -9,10 +9,10 @@ const connectRabbitMQ = async () => {
     connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost');
     channel = await connection.createChannel();
     
-    console.log('✅ Connecté à RabbitMQ (commande)');
+    console.log(' Connecté à RabbitMQ (commande)');
     return channel;
   } catch (error) {
-    console.error('❌ Erreur de connexion à RabbitMQ (commande):', error.message);
+    console.error(' Erreur de connexion à RabbitMQ (commande):', error.message);
     // Retry after 5 seconds
     setTimeout(connectRabbitMQ, 5000);
   }
@@ -34,12 +34,12 @@ async function publish(exchange, routingKey, message) {
     const success = channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(message)));
     
     if (!success) {
-      console.warn(`⚠️  Buffer plein lors de la publication sur ${exchange}:${routingKey}`);
+      console.warn(`  Buffer plein lors de la publication sur ${exchange}:${routingKey}`);
     }
     
     return success;
   } catch (error) {
-    console.error(`❌ Erreur lors de la publication sur ${exchange}:${routingKey}:`, error);
+    console.error(` Erreur lors de la publication sur ${exchange}:${routingKey}:`, error);
     throw error;
   }
 }
@@ -62,7 +62,7 @@ async function closeConnection() {
     }
     console.log('🔌 Connexion RabbitMQ fermée');
   } catch (error) {
-    console.error('❌ Erreur lors de la fermeture RabbitMQ:', error);
+    console.error(' Erreur lors de la fermeture RabbitMQ:', error);
   }
 }
 
