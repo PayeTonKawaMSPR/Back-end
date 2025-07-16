@@ -103,7 +103,7 @@ app.use(errorHandler);
       useNewUrlParser: true, 
       useUnifiedTopology: true 
     });
-    console.log('✅ MongoDB connecté (commande)');
+    console.log(' MongoDB connecté (commande)');
     
     // Connexion RabbitMQ
     await connectRabbitMQ();
@@ -111,13 +111,13 @@ app.use(errorHandler);
     // Mise à jour initiale des métriques
     await updateCustomMetrics();
     
-    console.log('🚀 API-COMMANDE initialisée avec succès');
-    console.log('📊 Métriques disponibles sur http://localhost:4000/metrics');
-    console.log('📈 Dashboard disponible sur http://localhost:4000/dashboard');
-    console.log('🏥 Health check disponible sur http://localhost:4000/health');
+    console.log(' API-COMMANDE initialisée avec succès');
+    console.log(' Métriques disponibles sur http://localhost:4000/metrics');
+    console.log(' Dashboard disponible sur http://localhost:4000/dashboard');
+    console.log(' Health check disponible sur http://localhost:4000/health');
     
   } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation:', error);
+    console.error(' Erreur lors de l\'initialisation:', error);
     process.exit(1);
   }
 })();
