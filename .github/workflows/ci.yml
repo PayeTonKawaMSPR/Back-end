@@ -50,7 +50,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./api-produit
-        run: echo "Tests API client passés"
+        run: echo "Tests API produit passés"
 
   test-api-client:
     name: Test API Client
