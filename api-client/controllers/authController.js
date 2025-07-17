@@ -1,66 +1,65 @@
+// controllers/authController.js
 const Client = require('../models/client');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-// Fonction utilitaire : génère un token JWT
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '1d',
-  });
-};
-
-// 🔹 POST /auth/signup → Création d’un utilisateur
 exports.signup = async (req, res) => {
-  console.log('📝 Requête reçue dans signup:', req.body);
-
-  const { name, email, password, phone, address } = req.body;
-
   try {
-    const userExists = await Client.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'Utilisateur déjà existant' });
+    console.log('📝 Requête reçue dans signup:', req.body);
+
+    const { name, email, password, phone, address, role, entreprise } = req.body;
+
+    const clientExist = await Client.findOne({ email });
+    if (clientExist) {
+      return res.status(400).json({ message: 'Un compte existe déjà avec cet email.' });
     }
 
-    const client = await Client.create({ name, email, password, phone, address });
-
-    res.status(201).json({
-      message: 'Compte créé avec succès',
-      token: generateToken(client._id),
-      client: {
-        id: client._id,
-        name: client.name,
-        email: client.email,
-      },
+    const client = new Client({
+      name,
+      email,
+      password,
+      phone,
+      address,
+      role,
+      entreprise
     });
+
+    await client.save();
+
+    const token = jwt.sign(
+      { id: client._id, role: client.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(201).json({ message: 'Compte client créé avec succès', token, client });
   } catch (error) {
     console.error('❌ Erreur dans signup:', error.message);
     res.status(500).json({ message: 'Erreur serveur', details: error.message });
   }
 };
 
-// 🔹 POST /auth/login → Connexion utilisateur
 exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
+    const { email, password } = req.body;
+
     const client = await Client.findOne({ email });
     if (!client) {
-      return res.status(400).json({ message: 'Utilisateur introuvable' });
+      return res.status(404).json({ message: 'Aucun compte trouvé avec cet email.' });
     }
 
     const isMatch = await client.comparePassword(password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Mot de passe incorrect' });
+      return res.status(401).json({ message: 'Mot de passe incorrect.' });
     }
 
-    res.status(200).json({
-      message: 'Connexion réussie',
-      token: generateToken(client._id),
-      client: {
-        id: client._id,
-        name: client.name,
-        email: client.email,
-      },
-    });
+    const token = jwt.sign(
+      { id: client._id, role: client.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.status(200).json({ message: 'Connexion réussie', token, client });
   } catch (error) {
     console.error('❌ Erreur dans login:', error.message);
     res.status(500).json({ message: 'Erreur serveur', details: error.message });

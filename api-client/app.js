@@ -1,34 +1,39 @@
 // app.js
-const { connectRabbitMQ } = require('./config/rabbit');
+
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
 const connectDB = require('./config/db');
+const { connectRabbitMQ } = require('./config/rabbit');
+
 const authRoutes = require('./routes/authRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 
 const app = express();
 
-// Connexion à MongoDB
+// 🔗 Connexion à la base de données MongoDB
 connectDB();
 
-// Connexion à RabbitMQ
+// 🐇 Connexion à RabbitMQ
 connectRabbitMQ();
 
-// Middlewares globaux
+// 🌍 Middlewares globaux
 app.use(cors());
-app.use(express.urlencoded({extended: true}))
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// 📦 Routes principales
 app.use('/auth', authRoutes);
 app.use('/clients', clientRoutes);
 
-// Middleware de gestion globale des erreurs
+// ❌ Middleware global pour gérer les erreurs
 app.use(errorHandler);
 
-app.listen(3000, () => {
-    console.log(`app listening on port ${3000}`)
-  })
+// 🚀 Lancement du serveur
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ Serveur lancé sur le port ${PORT}`);
+});
+
 module.exports = app;
