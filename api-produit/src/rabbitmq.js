@@ -20,4 +20,14 @@ async function testRabbitMQ() {
   }
 }
 
+/*async function publish(exchange, routingKey, message) {
+  if (!channel) {
+    throw new Error('RabbitMQ non initialisé – appelle d’abord testRabbitMQ()');
+  }
+  // On s’assure que l’exchange existe (type topic pour flexibilité)
+  await channel.assertExchange(exchange, 'topic', { durable: true });
+  const buffer = Buffer.from(JSON.stringify(message));
+  channel.publish(exchange, routingKey, buffer, { persistent: true });
+  console.log(`Message publié sur ${exchange}/${routingKey}`);
+}*/
 module.exports = { testRabbitMQ }; // <-- AJOUT ICI
