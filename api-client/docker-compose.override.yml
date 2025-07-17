@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  api-client:
+    build:
+      context: ./api-client
+      dockerfile: Dockerfile
+    container_name: api-client
+    volumes:
+      - ./api-client:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=app:*
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=gestionClients
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+      - rabbitmq

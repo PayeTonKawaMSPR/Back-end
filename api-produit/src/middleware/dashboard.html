@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard API-PRODUIT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .last-update {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .metric-icon {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+
+        .metric-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .metric-value {
+            font-size: 2em;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .metric-description {
+            font-size: 0.9em;
+            color: #666;
+            text-align: center;
+        }
+
+        .status-ok {
+            color: #28a745;
+        }
+
+        .status-error {
+            color: #dc3545;
+        }
+
+        .status-warning {
+            color: #ffc107;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .system-info {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .system-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .system-item h4 {
+            color: #495057;
+            margin-bottom: 5px;
+        }
+
+        .system-item span {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .auto-refresh {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="auto-refresh">
+        <span id="refresh-status">🔄 Actualisation auto</span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1> Dashboard API-PRODUIT</h1>
+            <div class="last-update">
+                Dernière mise à jour : <span id="last-update">--</span>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="pulse"> Chargement des métriques...</div>
+        </div>
+
+        <div id="dashboard" style="display: none;">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"></div>
+                        <div class="metric-title">Base de données</div>
+                    </div>
+                    <div class="metric-value" id="db-status">--</div>
+                    <div class="metric-description">Statut de connexion MongoDB</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🐰</div>
+                        <div class="metric-title">RabbitMQ</div>
+                    </div>
+                    <div class="metric-value" id="rabbitmq-status">--</div>
+                    <div class="metric-description">Statut de connexion RabbitMQ</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"></div>
+                        <div class="metric-title">Produits</div>
+                    </div>
+                    <div class="metric-value" id="products-count">--</div>
+                    <div class="metric-description">Nombre total de produits</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"></div>
+                        <div class="metric-title">Mémoire</div>
+                    </div>
+                    <div class="metric-value" id="memory-usage">--</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="memory-bar"></div>
+                    </div>
+                    <div class="metric-description">Utilisation mémoire heap</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon"></div>
+                        <div class="metric-title">Event Loop</div>
+                    </div>
+                    <div class="metric-value" id="eventloop-lag">--</div>
+                    <div class="metric-description">Lag de l'event loop (ms)</div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <div class="metric-icon">🗑️</div>
+                        <div class="metric-title">Garbage Collector</div>
+                    </div>
+                    <div class="metric-value" id="gc-duration">--</div>
+                    <div class="metric-description">Durée moyenne GC (ms)</div>
+                </div>
+            </div>
+
+            <div class="system-info">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #333;">📈 Informations système</h3>
+                <div class="system-grid">
+                    <div class="system-item">
+                        <h4>CPU Utilisateur</h4>
+                        <span id="cpu-user">--</span>
+                    </div>
+                    <div class="system-item">
+                        <h4>CPU Système</h4>
+                        <span id="cpu-system">--</span>
+                    </div>
+                    <div class="system-item">
+                        <h4>Mémoire Résidente</h4>
+                        <span id="resident-memory">--</span>
+                    </div>
+                    <div class="system-item">
+                        <h4>Descripteurs ouverts</h4>
+                        <span id="open-fds">--</span>
+                    </div>
+                    <div class="system-item">
+                        <h4>Handles actifs</h4>
+                        <span id="active-handles">--</span>
+                    </div>
+                    <div class="system-item">
+                        <h4>Version Node.js</h4>
+                        <span id="node-version">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDuration(seconds) {
+            return (seconds * 1000).toFixed(2) + ' ms';
+        }
+
+        function updateMetrics() {
+            fetch('/metrics')
+                .then(response => response.text())
+                .then(data => {
+                    const metrics = {};
+                    
+                    // Parser les métriques Prometheus
+                    const lines = data.split('\n');
+                    lines.forEach(line => {
+                        if (line.startsWith('produit_') && !line.startsWith('#')) {
+                            const parts = line.split(' ');
+                            if (parts.length >= 2) {
+                                const metricName = parts[0];
+                                const value = parseFloat(parts[1]);
+                                metrics[metricName] = value;
+                            }
+                        }
+                    });
+
+                    // Mise à jour de l'interface
+                    updateUI(metrics);
+                })
+                .catch(error => {
+                    console.error('Erreur lors du chargement des métriques:', error);
+                    document.getElementById('refresh-status').textContent = '❌ Erreur de chargement';
+                });
+        }
+
+        function updateUI(metrics) {
+            // Statut base de données
+            const dbStatus = metrics['produit_database_status'];
+            const dbElement = document.getElementById('db-status');
+            if (dbStatus === 1) {
+                dbElement.textContent = '🟢 Connecté';
+                dbElement.className = 'metric-value status-ok';
+            } else {
+                dbElement.textContent = '🔴 Déconnecté';
+                dbElement.className = 'metric-value status-error';
+            }
+
+            // Statut RabbitMQ
+            const rabbitmqStatus = metrics['produit_rabbitmq_status'];
+            const rabbitmqElement = document.getElementById('rabbitmq-status');
+            if (rabbitmqStatus === 1) {
+                rabbitmqElement.textContent = '🟢 Connecté';
+                rabbitmqElement.className = 'metric-value status-ok';
+            } else {
+                rabbitmqElement.textContent = '🔴 Déconnecté';
+                rabbitmqElement.className = 'metric-value status-error';
+            }
+
+            // Nombre de produits
+            const productsCount = metrics['produit_database_products_total'] || 0;
+            document.getElementById('products-count').textContent = productsCount;
+
+            // Mémoire
+            const heapUsed = metrics['produit_nodejs_heap_size_used_bytes'] || 0;
+            const heapTotal = metrics['produit_nodejs_heap_size_total_bytes'] || 1;
+            const memoryPercent = (heapUsed / heapTotal) * 100;
+            document.getElementById('memory-usage').textContent = memoryPercent.toFixed(1) + '%';
+            document.getElementById('memory-bar').style.width = memoryPercent + '%';
+
+            // Event Loop Lag
+            const eventLoopLag = metrics['produit_nodejs_eventloop_lag_seconds'] || 0;
+            document.getElementById('eventloop-lag').textContent = formatDuration(eventLoopLag);
+
+            // GC Duration
+            const gcDuration = metrics['produit_nodejs_gc_duration_seconds_sum'] || 0;
+            const gcCount = metrics['produit_nodejs_gc_duration_seconds_count'] || 1;
+            const avgGcDuration = gcDuration / gcCount;
+            document.getElementById('gc-duration').textContent = formatDuration(avgGcDuration);
+
+            // Informations système
+            document.getElementById('cpu-user').textContent = (metrics['produit_process_cpu_user_seconds_total'] || 0).toFixed(2) + 's';
+            document.getElementById('cpu-system').textContent = (metrics['produit_process_cpu_system_seconds_total'] || 0).toFixed(2) + 's';
+            document.getElementById('resident-memory').textContent = formatBytes(metrics['produit_process_resident_memory_bytes'] || 0);
+            document.getElementById('open-fds').textContent = metrics['produit_process_open_fds'] || 0;
+            document.getElementById('active-handles').textContent = metrics['produit_nodejs_active_handles_total'] || 0;
+            
+            // Version Node.js (extraire de la métrique version_info)
+            document.getElementById('node-version').textContent = 'v18.20.8'; // Vous pouvez parser cela dynamiquement si nécessaire
+
+            // Mise à jour du timestamp
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+            
+            // Masquer le loading et afficher le dashboard
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            
+            // Statut de rafraîchissement
+            document.getElementById('refresh-status').textContent = '🔄 Actualisation auto';
+        }
+
+        // Chargement initial
+        updateMetrics();
+
+        // Actualisation automatique toutes les 5 secondes
+        setInterval(updateMetrics, 5000);
+    </script>
+</body>
+</html>

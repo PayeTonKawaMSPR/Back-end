@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  api-produit:
+    build:
+      context: ./api-produit
+      dockerfile: Dockerfile
+    container_name: api-produit
+    volumes:
+      - ./api-produit:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=app:*
+      - MONGO_URI=mongodb://mongo:27017/gestionProduits
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "5000:5000"
+    command: npm run dev
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  api-client:
+    build:
+      context: ./api-client
+      dockerfile: Dockerfile
+    container_name: api-client
+    volumes:
+      - ./api-client:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - DEBUG=app:*
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=gestionClients
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  api-commande:
+    build:
+      context: ./api-commande
+      dockerfile: Dockerfile
+    container_name: api-commande
+    volumes:
+      - ./api-commande:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/gestionCommandes
+      - RABBITMQ_URL=amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "4000:3000"
+    command: npm run dev
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=admin
+
+volumes:
+  mongo-data:

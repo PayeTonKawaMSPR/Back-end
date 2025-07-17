@@ -1,0 +1,36 @@
+{
+  "name": "api-commandes",
+  "version": "1.0.0",
+  "description": "API de gestion des commandes",
+  "main": "app.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "dotenv": "^16.0.0",
+    "express": "^4.21.2",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb-memory-server": "^10.1.4",
+    "mongoose": "^7.8.7",
+    "prom-client": "^15.1.3",
+    "helmet": "^7.0.0",
+    "morgan": "^1.10.0",
+    "cors": "^2.8.5",
+    "express-mongo-sanitize": "^2.2.0",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
